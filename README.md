@@ -2,6 +2,34 @@
 
 An Android application that bridges media control buttons (from smartwatches, Bluetooth headphones, car stereos, etc.) to Home Assistant events. Control your smart home devices using familiar media controls - play/pause to toggle devices, next/previous to switch between devices, and volume buttons to adjust brightness.
 
+---
+
+## Disclaimer
+
+> **This entire project was designed and built by Claude (Anthropic's AI assistant).**
+>
+> This software is provided "AS IS", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors, contributors, or Claude AI be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
+>
+> **Use at your own risk.** This is an experimental project created through AI-assisted development. While efforts have been made to ensure functionality and security, no guarantees are provided. Always review the code before using it in any production or sensitive environment.
+
+---
+
+## Screenshots
+
+### Android Application
+
+| Main Screen | Device List |
+|:-----------:|:-----------:|
+| ![App Screenshot 1](assets/screenshot_0.jpg) | ![App Screenshot 2](assets/screenshot_1.jpg) |
+
+### Smartwatch Control
+
+| Device Control | Volume/Brightness |
+|:--------------:|:-----------------:|
+| ![Smartwatch 1](assets/image_0.jpg) | ![Smartwatch 2](assets/image_1.jpg) |
+
+---
+
 ## Features
 
 - **Device Playlist**: Configure a list of Home Assistant entities to control
