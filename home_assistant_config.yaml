@@ -1,0 +1,434 @@
+# Home Assistant Configuration for HA Media Bridge
+# Add this to your configuration.yaml or automations.yaml / scripts.yaml
+#
+# ============================================
+# LOVELACE DASHBOARD CARD (copy to your dashboard)
+# ============================================
+#
+# type: markdown
+# title: Android Media Bridge Devices
+# content: |
+#   {% set current = states('input_text.android_media_bridge_devices') %}
+#   {% if current and current not in ['unknown', 'unavailable', ''] %}
+#     {% set devices = current | from_json %}
+#     | # | Name | Entity | State |
+#     |---|------|--------|-------|
+#     {% for d in devices %}
+#     | {{ loop.index }} | {{ d.n }} | `{{ d.e }}` | {{ states(d.e) }} |
+#     {% endfor %}
+#   {% else %}
+#     *No devices configured*
+#   {% endif %}
+#
+# ============================================
+# ALTERNATIVE: Entities Card
+# ============================================
+#
+# type: entities
+# title: Android Media Bridge
+# entities:
+#   - entity: sensor.android_media_bridge_device_count
+#   - entity: sensor.android_media_bridge_device_list
+#   - type: divider
+#   - entity: input_text.android_media_bridge_devices
+#     name: Raw Device List
+
+# ============================================
+# INPUT TEXT HELPER (for device list sync)
+# ============================================
+# Add to configuration.yaml under "input_text:"
+
+input_text:
+  android_media_bridge_devices:
+    name: "Android Media Bridge Devices"
+    max: 255
+    mode: text
+    # Stores device list as compact JSON array, e.g.:
+    # [{"n":"Living Room","e":"light.living_room"},{"n":"Bedroom","e":"light.bedroom"}]
+    # Uses short keys: n=name, e=entityId (fits ~5-6 devices)
+
+
+# ============================================
+# TEMPLATE SENSORS (for displaying device list)
+# ============================================
+# Add to configuration.yaml under "template:" or in a separate file
+
+template:
+  - sensor:
+      - name: "Android Media Bridge Device Count"
+        unique_id: android_media_bridge_device_count
+        icon: mdi:devices
+        state: >
+          {% set current = states('input_text.android_media_bridge_devices') %}
+          {% if current and current not in ['unknown', 'unavailable', ''] %}
+            {{ (current | from_json) | length }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Android Media Bridge Device List"
+        unique_id: android_media_bridge_device_list
+        icon: mdi:format-list-bulleted
+        state: >
+          {% set current = states('input_text.android_media_bridge_devices') %}
+          {% if current and current not in ['unknown', 'unavailable', ''] %}
+            {% set devices = current | from_json %}
+            {{ devices | length }} devices
+          {% else %}
+            No devices
+          {% endif %}
+        attributes:
+          devices: >
+            {% set current = states('input_text.android_media_bridge_devices') %}
+            {% if current and current not in ['unknown', 'unavailable', ''] %}
+              {% set devices = current | from_json %}
+              {% set result = [] %}
+              {% for d in devices %}
+                {% set result = result + [{'name': d.n, 'entity_id': d.e, 'state': states(d.e)}] %}
+              {% endfor %}
+              {{ result }}
+            {% else %}
+              []
+            {% endif %}
+          device_names: >
+            {% set current = states('input_text.android_media_bridge_devices') %}
+            {% if current and current not in ['unknown', 'unavailable', ''] %}
+              {{ (current | from_json) | map(attribute='n') | list }}
+            {% else %}
+              []
+            {% endif %}
+          device_entities: >
+            {% set current = states('input_text.android_media_bridge_devices') %}
+            {% if current and current not in ['unknown', 'unavailable', ''] %}
+              {{ (current | from_json) | map(attribute='e') | list }}
+            {% else %}
+              []
+            {% endif %}
+
+# ============================================
+# AUTOMATIONS
+# ============================================
+# Add to automations.yaml or configuration.yaml under "automation:"
+
+automation:
+  # Handle Device ON events
+  - id: android_media_bridge_device_on
+    alias: "Android Media Bridge - Device On"
+    description: "Turn on device when play is pressed on smartwatch"
+    trigger:
+      - platform: event
+        event_type: android_device_on
+    action:
+      - service: script.android_bridge_turn_on
+        data:
+          entity_id: "{{ trigger.event.data.entity_id }}"
+    mode: queued
+    max: 10
+
+  # Handle Device OFF events
+  - id: android_media_bridge_device_off
+    alias: "Android Media Bridge - Device Off"
+    description: "Turn off device when pause is pressed on smartwatch"
+    trigger:
+      - platform: event
+        event_type: android_device_off
+    action:
+      - service: script.android_bridge_turn_off
+        data:
+          entity_id: "{{ trigger.event.data.entity_id }}"
+    mode: queued
+    max: 10
+
+  # Handle Volume/Brightness events
+  - id: android_media_bridge_device_volume
+    alias: "Android Media Bridge - Device Volume/Brightness"
+    description: "Change brightness when volume is adjusted on smartwatch"
+    trigger:
+      - platform: event
+        event_type: android_device_volume
+    action:
+      - service: script.android_bridge_set_brightness
+        data:
+          entity_id: "{{ trigger.event.data.entity_id }}"
+          brightness_pct: "{{ trigger.event.data.volume }}"
+    mode: queued
+    max: 10
+
+
+# ============================================
+# SCRIPTS
+# ============================================
+# Add to scripts.yaml or configuration.yaml under "script:"
+
+script:
+  # Script to turn on a device
+  android_bridge_turn_on:
+    alias: "Android Bridge - Turn On Device"
+    description: "Turn on a device by entity_id"
+    fields:
+      entity_id:
+        description: "The entity ID to turn on"
+        example: "light.living_room"
+        required: true
+        selector:
+          entity:
+    sequence:
+      - choose:
+          # Handle lights
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('light.') }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle switches
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('switch.') }}"
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle fans
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('fan.') }}"
+            sequence:
+              - service: fan.turn_on
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle media players
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('media_player.') }}"
+            sequence:
+              - service: media_player.turn_on
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle covers
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('cover.') }}"
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle scenes
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('scene.') }}"
+            sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle scripts
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('script.') }}"
+            sequence:
+              - service: script.turn_on
+                target:
+                  entity_id: "{{ entity_id }}"
+        # Default: use homeassistant.turn_on
+        default:
+          - service: homeassistant.turn_on
+            target:
+              entity_id: "{{ entity_id }}"
+    mode: queued
+    max: 10
+
+  # Script to turn off a device
+  android_bridge_turn_off:
+    alias: "Android Bridge - Turn Off Device"
+    description: "Turn off a device by entity_id"
+    fields:
+      entity_id:
+        description: "The entity ID to turn off"
+        example: "light.living_room"
+        required: true
+        selector:
+          entity:
+    sequence:
+      - choose:
+          # Handle lights
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('light.') }}"
+            sequence:
+              - service: light.turn_off
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle switches
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('switch.') }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle fans
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('fan.') }}"
+            sequence:
+              - service: fan.turn_off
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle media players
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('media_player.') }}"
+            sequence:
+              - service: media_player.turn_off
+                target:
+                  entity_id: "{{ entity_id }}"
+          # Handle covers
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('cover.') }}"
+            sequence:
+              - service: cover.close_cover
+                target:
+                  entity_id: "{{ entity_id }}"
+        # Default: use homeassistant.turn_off
+        default:
+          - service: homeassistant.turn_off
+            target:
+              entity_id: "{{ entity_id }}"
+    mode: queued
+    max: 10
+
+  # Script to set brightness/volume
+  android_bridge_set_brightness:
+    alias: "Android Bridge - Set Brightness"
+    description: "Set brightness/volume for a device"
+    fields:
+      entity_id:
+        description: "The entity ID to control"
+        example: "light.living_room"
+        required: true
+        selector:
+          entity:
+      brightness_pct:
+        description: "Brightness percentage (0-100)"
+        example: "50"
+        required: true
+        selector:
+          number:
+            min: 0
+            max: 100
+    sequence:
+      - choose:
+          # Handle lights - set brightness
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('light.') }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: "{{ entity_id }}"
+                data:
+                  brightness_pct: "{{ brightness_pct | int }}"
+          # Handle fans - set percentage
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('fan.') }}"
+            sequence:
+              - service: fan.set_percentage
+                target:
+                  entity_id: "{{ entity_id }}"
+                data:
+                  percentage: "{{ brightness_pct | int }}"
+          # Handle media players - set volume
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('media_player.') }}"
+            sequence:
+              - service: media_player.volume_set
+                target:
+                  entity_id: "{{ entity_id }}"
+                data:
+                  volume_level: "{{ (brightness_pct | int) / 100 }}"
+          # Handle covers - set position
+          - conditions:
+              - condition: template
+                value_template: "{{ entity_id.startswith('cover.') }}"
+            sequence:
+              - service: cover.set_cover_position
+                target:
+                  entity_id: "{{ entity_id }}"
+                data:
+                  position: "{{ brightness_pct | int }}"
+        # Default: try to set brightness (works for most dimmable entities)
+        default:
+          - service: light.turn_on
+            target:
+              entity_id: "{{ entity_id }}"
+            data:
+              brightness_pct: "{{ brightness_pct | int }}"
+    mode: queued
+    max: 10
+
+  # Script to add a device to the list
+  android_bridge_add_device:
+    alias: "Android Bridge - Add Device"
+    description: "Add a device to the Android Media Bridge list"
+    fields:
+      name:
+        description: "Display name for the device"
+        example: "Living Room"
+        required: true
+        selector:
+          text:
+      entity_id:
+        description: "Entity ID to control"
+        example: "light.living_room"
+        required: true
+        selector:
+          entity:
+    sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.android_media_bridge_devices
+        data:
+          value: >
+            {% set current = states('input_text.android_media_bridge_devices') %}
+            {% set devices = (current | from_json) if current and current not in ['unknown', 'unavailable', ''] else [] %}
+            {% set new_device = {'n': name, 'e': entity_id} %}
+            {{ (devices + [new_device]) | to_json }}
+    mode: single
+
+  # Script to remove a device from the list
+  android_bridge_remove_device:
+    alias: "Android Bridge - Remove Device"
+    description: "Remove a device from the Android Media Bridge list"
+    fields:
+      entity_id:
+        description: "Entity ID to remove"
+        example: "light.living_room"
+        required: true
+        selector:
+          entity:
+    sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.android_media_bridge_devices
+        data:
+          value: >
+            {% set current = states('input_text.android_media_bridge_devices') %}
+            {% set devices = (current | from_json) if current and current not in ['unknown', 'unavailable', ''] else [] %}
+            {{ devices | rejectattr('e', 'eq', entity_id) | list | to_json }}
+    mode: single
+
+  # Script to clear all devices
+  android_bridge_clear_devices:
+    alias: "Android Bridge - Clear All Devices"
+    description: "Remove all devices from the Android Media Bridge list"
+    sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.android_media_bridge_devices
+        data:
+          value: "[]"
+    mode: single

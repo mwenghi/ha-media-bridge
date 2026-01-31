@@ -17,6 +17,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.media.VolumeProviderCompat
 import android.util.Log
 import android.view.KeyEvent
 import androidx.core.app.NotificationCompat
@@ -40,6 +41,11 @@ class MediaButtonService : MediaBrowserServiceCompat() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var audioFocusRequest: AudioFocusRequest? = null
 
+    private var currentDeviceIndex: Int = 0
+    private var currentVolume: Int = 50
+    private var isPlaying: Boolean = false
+    private var volumeProvider: VolumeProviderCompat? = null
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Service onCreate")
@@ -50,6 +56,8 @@ class MediaButtonService : MediaBrowserServiceCompat() {
 
         createNotificationChannel()
         setupMediaSession()
+        // Fetch initial device state from Home Assistant
+        fetchAndUpdateDeviceState()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -181,9 +189,11 @@ class MediaButtonService : MediaBrowserServiceCompat() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val playIntent = PendingIntent.getService(
+        val playPauseIntent = PendingIntent.getService(
             this, 2,
-            Intent(this, MediaButtonService::class.java).setAction(ACTION_PLAY),
+            Intent(this, MediaButtonService::class.java).setAction(
+                if (isPlaying) ACTION_PAUSE else ACTION_PLAY
+            ),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
@@ -193,15 +203,22 @@ class MediaButtonService : MediaBrowserServiceCompat() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val device = getCurrentDevice()
+        val title = device?.name ?: getString(R.string.notification_title)
+        val text = device?.entityId ?: getString(R.string.notification_text)
+
+        val playPauseIcon = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+        val playPauseLabel = if (isPlaying) "Pause" else "Play"
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.notification_title))
-            .setContentText(getString(R.string.notification_text))
+            .setContentTitle(title)
+            .setContentText(text)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(contentIntent)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .addAction(R.drawable.ic_previous, "Previous", prevIntent)
-            .addAction(R.drawable.ic_play, "Play", playIntent)
+            .addAction(playPauseIcon, playPauseLabel, playPauseIntent)
             .addAction(R.drawable.ic_next, "Next", nextIntent)
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
@@ -231,22 +248,50 @@ class MediaButtonService : MediaBrowserServiceCompat() {
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPlay() {
                     Log.d(TAG, "MediaSession onPlay callback")
-                    fireEvent("play") { haClient.firePlayEvent() }
+                    isPlaying = true
+                    updatePlaybackState()
+                    updateNotification()
+                    val device = getCurrentDevice()
+                    if (device != null) {
+                        fireEvent("device_on") { haClient.fireDeviceOnEvent(device.entityId) }
+                    } else {
+                        fireEvent("play") { haClient.firePlayEvent() }
+                    }
                 }
 
                 override fun onPause() {
                     Log.d(TAG, "MediaSession onPause callback")
-                    fireEvent("pause") { haClient.firePauseEvent() }
+                    isPlaying = false
+                    updatePlaybackState()
+                    updateNotification()
+                    val device = getCurrentDevice()
+                    if (device != null) {
+                        fireEvent("device_off") { haClient.fireDeviceOffEvent(device.entityId) }
+                    } else {
+                        fireEvent("pause") { haClient.firePauseEvent() }
+                    }
                 }
 
                 override fun onSkipToNext() {
                     Log.d(TAG, "MediaSession onSkipToNext callback")
-                    fireEvent("next") { haClient.fireNextEvent() }
+                    val devices = settingsManager.deviceList
+                    if (devices.isNotEmpty()) {
+                        currentDeviceIndex = (currentDeviceIndex + 1) % devices.size
+                        fetchAndUpdateDeviceState()
+                    } else {
+                        fireEvent("next") { haClient.fireNextEvent() }
+                    }
                 }
 
                 override fun onSkipToPrevious() {
                     Log.d(TAG, "MediaSession onSkipToPrevious callback")
-                    fireEvent("previous") { haClient.firePreviousEvent() }
+                    val devices = settingsManager.deviceList
+                    if (devices.isNotEmpty()) {
+                        currentDeviceIndex = if (currentDeviceIndex > 0) currentDeviceIndex - 1 else devices.size - 1
+                        fetchAndUpdateDeviceState()
+                    } else {
+                        fireEvent("previous") { haClient.firePreviousEvent() }
+                    }
                 }
 
                 override fun onStop() {
@@ -320,11 +365,89 @@ class MediaButtonService : MediaBrowserServiceCompat() {
                     .build()
             )
 
+            // Set up volume provider BEFORE activating session
+            val service = this@MediaButtonService
+            volumeProvider = object : VolumeProviderCompat(
+                VOLUME_CONTROL_ABSOLUTE,
+                100,  // max volume
+                service.currentVolume
+            ) {
+                override fun onSetVolumeTo(volume: Int) {
+                    Log.d(TAG, "VolumeProvider onSetVolumeTo: $volume")
+                    service.currentVolume = volume
+                    setCurrentVolume(volume)
+                    Log.d(TAG, "VolumeProvider currentVolume now: ${getCurrentVolume()}")
+                    service.updateCurrentDeviceMetadata()
+                    val device = service.getCurrentDevice()
+                    if (device != null) {
+                        service.fireEvent("device_volume") { haClient.fireDeviceVolumeEvent(device.entityId, volume) }
+                    }
+                }
+
+                override fun onAdjustVolume(direction: Int) {
+                    Log.d(TAG, "VolumeProvider onAdjustVolume: $direction, current: ${service.currentVolume}")
+                    val newVolume = when {
+                        direction > 0 -> (service.currentVolume + 5).coerceAtMost(100)
+                        direction < 0 -> (service.currentVolume - 5).coerceAtLeast(0)
+                        else -> service.currentVolume
+                    }
+                    service.currentVolume = newVolume
+                    setCurrentVolume(newVolume)
+                    Log.d(TAG, "VolumeProvider set to: $newVolume, getCurrentVolume: ${getCurrentVolume()}")
+
+                    // Update metadata to show new volume
+                    service.updateCurrentDeviceMetadata()
+
+                    val device = service.getCurrentDevice()
+                    if (device != null) {
+                        service.fireEvent("device_volume") { haClient.fireDeviceVolumeEvent(device.entityId, newVolume) }
+                    }
+                }
+            }
+            setPlaybackToRemote(volumeProvider!!)
+
             isActive = true
         }
 
         sessionToken = mediaSession.sessionToken
         Log.d(TAG, "MediaSession setup complete, active: ${mediaSession.isActive}")
+    }
+
+    fun refreshDeviceList() {
+        fetchAndUpdateDeviceState()
+    }
+
+    private fun fetchAndUpdateDeviceState() {
+        val device = getCurrentDevice()
+        if (device == null) {
+            updateCurrentDeviceMetadata()
+            updateNotification()
+            return
+        }
+
+        serviceScope.launch {
+            val result = haClient.getEntityState(device.entityId)
+            if (result.isSuccess) {
+                val state = result.getOrNull()!!
+                // Update isPlaying based on entity state
+                isPlaying = state.state == "on"
+
+                // Update volume/brightness if available
+                if (state.brightness != null) {
+                    currentVolume = state.brightness
+                    volumeProvider?.setCurrentVolume(currentVolume)
+                }
+
+                Log.d(TAG, "Device ${device.entityId} state: ${state.state}, brightness: ${state.brightness}, isPlaying: $isPlaying")
+            } else {
+                Log.e(TAG, "Failed to fetch device state: ${result.exceptionOrNull()?.message}")
+            }
+
+            // Update UI on main thread
+            updatePlaybackState()
+            updateCurrentDeviceMetadata()
+            updateNotification()
+        }
     }
 
     private fun requestAudioFocus() {
@@ -433,6 +556,67 @@ class MediaButtonService : MediaBrowserServiceCompat() {
             LocalBroadcastManager.getInstance(this@MediaButtonService)
                 .sendBroadcast(broadcastIntent)
         }
+    }
+
+    private fun getCurrentDevice(): Device? {
+        val devices = settingsManager.deviceList
+        return if (devices.isNotEmpty() && currentDeviceIndex < devices.size) {
+            devices[currentDeviceIndex]
+        } else {
+            null
+        }
+    }
+
+    private fun updateCurrentDeviceMetadata() {
+        val devices = settingsManager.deviceList
+        if (devices.isEmpty()) {
+            mediaSession.setMetadata(
+                MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, "HA Media Bridge")
+                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "No devices configured")
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, "Add devices in app")
+                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 360000)
+                    .build()
+            )
+            return
+        }
+
+        if (currentDeviceIndex >= devices.size) {
+            currentDeviceIndex = 0
+        }
+
+        val device = devices[currentDeviceIndex]
+        mediaSession.setMetadata(
+            MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, device.name)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "Vol: $currentVolume%")
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, "${currentDeviceIndex + 1}/${devices.size} · ${device.entityId}")
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 360000)
+                .build()
+        )
+    }
+
+    private fun updatePlaybackState() {
+        val state = if (isPlaying) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
+        mediaSession.setPlaybackState(
+            PlaybackStateCompat.Builder()
+                .setActions(
+                    PlaybackStateCompat.ACTION_PLAY or
+                    PlaybackStateCompat.ACTION_PAUSE or
+                    PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                    PlaybackStateCompat.ACTION_STOP or
+                    PlaybackStateCompat.ACTION_SEEK_TO
+                )
+                .setState(state, 30000, 1f, System.currentTimeMillis())
+                .build()
+        )
+    }
+
+    private fun updateNotification() {
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.notify(NOTIFICATION_ID, createNotification())
     }
 
     companion object {

@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import org.json.JSONArray
+import org.json.JSONObject
+
+data class Device(val name: String, val entityId: String)
 
 class SettingsManager(context: Context) {
 
@@ -44,6 +48,31 @@ class SettingsManager(context: Context) {
         get() = regularPrefs.getBoolean(KEY_SERVICE_ENABLED, false)
         set(value) = regularPrefs.edit().putBoolean(KEY_SERVICE_ENABLED, value).apply()
 
+    var deviceList: List<Device>
+        get() {
+            val json = regularPrefs.getString(KEY_DEVICE_LIST, "[]") ?: "[]"
+            return try {
+                val jsonArray = JSONArray(json)
+                (0 until jsonArray.length()).map { i ->
+                    val obj = jsonArray.getJSONObject(i)
+                    Device(obj.getString("name"), obj.getString("entityId"))
+                }
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
+        set(value) {
+            val jsonArray = JSONArray()
+            value.forEach { device ->
+                val obj = JSONObject().apply {
+                    put("name", device.name)
+                    put("entityId", device.entityId)
+                }
+                jsonArray.put(obj)
+            }
+            regularPrefs.edit().putString(KEY_DEVICE_LIST, jsonArray.toString()).apply()
+        }
+
     val isAuthenticated: Boolean
         get() = !accessToken.isNullOrEmpty()
 
@@ -64,5 +93,6 @@ class SettingsManager(context: Context) {
         private const val KEY_REFRESH_TOKEN = "refresh_token"
         private const val KEY_TOKEN_EXPIRATION = "token_expiration"
         private const val KEY_SERVICE_ENABLED = "service_enabled"
+        private const val KEY_DEVICE_LIST = "device_list"
     }
 }

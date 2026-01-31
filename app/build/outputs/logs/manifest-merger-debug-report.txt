@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:2:1-59:12
-INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:2:1-59:12
-INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:2:1-59:12
-INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:2:1-59:12
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:2:1-60:12
 MERGED from [com.google.android.material:material:1.11.0] /Users/m.vengrin/.gradle/caches/transforms-3/7cc0e9918b5b5dd8cfc0fc56b4521788/transformed/material-1.11.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /Users/m.vengrin/.gradle/caches/transforms-3/307487a0e03bb6ab056e85c4f435cf87/transformed/constraintlayout-2.1.4/AndroidManifest.xml:2:1-11:12
 MERGED from [net.openid:appauth:0.11.1] /Users/m.vengrin/.gradle/caches/transforms-3/47308a5f655c5409a8f0cd91e6de027d/transformed/appauth-0.11.1/AndroidManifest.xml:15:1-55:12
@@ -81,9 +81,13 @@ uses-permission#android.permission.POST_NOTIFICATIONS
 ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:9:5-77
 	android:name
 		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:9:22-74
+uses-permission#android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:10:5-95
+	android:name
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:10:22-92
 application
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:11:5-57:19
-INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:11:5-57:19
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:12:5-58:19
+INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:12:5-58:19
 MERGED from [com.google.android.material:material:1.11.0] /Users/m.vengrin/.gradle/caches/transforms-3/7cc0e9918b5b5dd8cfc0fc56b4521788/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] /Users/m.vengrin/.gradle/caches/transforms-3/7cc0e9918b5b5dd8cfc0fc56b4521788/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /Users/m.vengrin/.gradle/caches/transforms-3/307487a0e03bb6ab056e85c4f435cf87/transformed/constraintlayout-2.1.4/AndroidManifest.xml:9:5-20
@@ -107,73 +111,73 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/m.vengrin/.gradle/ca
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] /Users/m.vengrin/.gradle/caches/transforms-3/a5fb7c1237e100680c334048fd2566af/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:15:9-35
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:16:9-35
 	android:label
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:14:9-41
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:15:9-41
 	android:icon
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:13:9-43
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:14:9-43
 	android:allowBackup
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:12:9-35
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:13:9-35
 	android:theme
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:16:9-51
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:17:9-51
 	android:networkSecurityConfig
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:17:9-69
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:18:9-69
 	android:usesCleartextTraffic
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:18:9-44
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:19:9-44
 activity#com.example.hamediabridge.MainActivity
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:20:9-27:20
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:21:9-28:20
 	android:exported
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:22:13-36
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:23:13-36
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:21:13-41
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:22:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:23:13-26:29
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:24:13-27:29
 action#android.intent.action.MAIN
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:24:17-69
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:25:17-69
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:24:25-66
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:25:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:25:17-77
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:26:17-77
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:25:27-74
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:26:27-74
 service#com.example.hamediabridge.MediaButtonService
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:29:9-39:19
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:30:9-40:19
 	android:exported
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:31:13-36
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:32:13-36
 	android:foregroundServiceType
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:32:13-58
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:33:13-58
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:30:13-47
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:31:13-47
 intent-filter#action:name:android.media.browse.MediaBrowserService
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:33:13-35:29
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:34:13-36:29
 action#android.media.browse.MediaBrowserService
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:34:17-83
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:35:17-83
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:34:25-80
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:35:25-80
 intent-filter#action:name:android.intent.action.MEDIA_BUTTON
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:36:13-38:29
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:37:13-39:29
 action#android.intent.action.MEDIA_BUTTON
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:37:17-77
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:38:17-77
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:37:25-74
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:38:25-74
 receiver#androidx.media.session.MediaButtonReceiver
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:41:9-47:20
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:42:9-48:20
 	android:exported
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:43:13-36
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:44:13-36
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:42:13-70
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:43:13-70
 receiver#com.example.hamediabridge.BootReceiver
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:49:9-55:20
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:50:9-56:20
 	android:exported
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:51:13-37
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:52:13-37
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:50:13-41
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:51:13-41
 intent-filter#action:name:android.intent.action.BOOT_COMPLETED
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:52:13-54:29
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:53:13-55:29
 action#android.intent.action.BOOT_COMPLETED
-ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:53:17-79
+ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:54:17-79
 	android:name
-		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:53:25-76
+		ADDED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml:54:25-76
 uses-sdk
 INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/m.vengrin/Android/app/src/main/AndroidManifest.xml

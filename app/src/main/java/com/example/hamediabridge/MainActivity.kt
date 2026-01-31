@@ -2,15 +2,25 @@ package com.example.hamediabridge
 
 import android.Manifest
 import android.app.ActivityManager
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ListView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
@@ -39,6 +49,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var serviceStatusText: TextView
     private lateinit var testEventButton: Button
     private lateinit var lastEventText: TextView
+    private lateinit var deviceListView: ListView
+    private lateinit var noDevicesText: TextView
+    private lateinit var addDeviceButton: Button
+    private lateinit var syncDevicesButton: Button
+    private lateinit var syncStatusText: TextView
+    private lateinit var deviceListAdapter: DeviceListAdapter
 
     private val mediaEventReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -62,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         initViews()
         loadSettings()
         setupListeners()
-        requestNotificationPermission()
+        checkAndRequestPermissions()
 
         // Auto-start service if it was enabled
         if (settingsManager.serviceEnabled && settingsManager.isAuthenticated) {
@@ -97,12 +113,21 @@ class MainActivity : AppCompatActivity() {
         serviceStatusText = findViewById(R.id.serviceStatusText)
         testEventButton = findViewById(R.id.testEventButton)
         lastEventText = findViewById(R.id.lastEventText)
+        deviceListView = findViewById(R.id.deviceListView)
+        noDevicesText = findViewById(R.id.noDevicesText)
+        addDeviceButton = findViewById(R.id.addDeviceButton)
+        syncDevicesButton = findViewById(R.id.syncDevicesButton)
+        syncStatusText = findViewById(R.id.syncStatusText)
+
+        deviceListAdapter = DeviceListAdapter()
+        deviceListView.adapter = deviceListAdapter
     }
 
     private fun loadSettings() {
         urlEditText.setText(settingsManager.homeAssistantUrl)
         tokenEditText.setText(settingsManager.accessToken ?: "")
         serviceSwitch.isChecked = settingsManager.serviceEnabled && isServiceRunning()
+        updateDeviceList()
     }
 
     private fun setupListeners() {
@@ -169,18 +194,72 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        addDeviceButton.setOnClickListener {
+            showAddDeviceDialog()
+        }
+
+        syncDevicesButton.setOnClickListener {
+            syncWithHomeAssistant()
+        }
     }
 
-    private fun requestNotificationPermission() {
+    private fun checkAndRequestPermissions() {
+        val missingPermissions = mutableListOf<String>()
+
+        // Check notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
             ) {
-                ActivityCompat.requestPermissions(
+                missingPermissions.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        // Request runtime permissions if needed
+        if (missingPermissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                this,
+                missingPermissions.toTypedArray(),
+                RC_PERMISSIONS
+            )
+        } else {
+            // Check battery optimization after runtime permissions
+            checkBatteryOptimization()
+        }
+    }
+
+    private fun checkBatteryOptimization() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.battery_optimization_title)
+                .setMessage(R.string.battery_optimization_message)
+                .setPositiveButton(R.string.open_settings) { _, _ ->
+                    requestBatteryOptimizationExemption()
+                }
+                .setNegativeButton(R.string.later, null)
+                .show()
+        }
+    }
+
+    private fun requestBatteryOptimizationExemption() {
+        try {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            // Fallback to battery optimization settings
+            try {
+                val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                startActivity(intent)
+            } catch (e2: Exception) {
+                Toast.makeText(
                     this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    RC_NOTIFICATION_PERMISSION
-                )
+                    R.string.battery_settings_error,
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -191,14 +270,26 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == RC_NOTIFICATION_PERMISSION) {
-            if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    this,
-                    "Notification permission required for service",
-                    Toast.LENGTH_LONG
-                ).show()
+        if (requestCode == RC_PERMISSIONS) {
+            val deniedPermissions = mutableListOf<String>()
+            for (i in permissions.indices) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                    deniedPermissions.add(permissions[i])
+                }
             }
+
+            if (deniedPermissions.isNotEmpty()) {
+                if (deniedPermissions.contains(Manifest.permission.POST_NOTIFICATIONS)) {
+                    Toast.makeText(
+                        this,
+                        R.string.notification_permission_required,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+            // Check battery optimization after handling permissions
+            checkBatteryOptimization()
         }
     }
 
@@ -248,7 +339,159 @@ class MainActivity : AppCompatActivity() {
         updateServiceStatus()
     }
 
+    private fun updateDeviceList() {
+        val devices = settingsManager.deviceList
+        deviceListAdapter.updateDevices(devices)
+
+        if (devices.isEmpty()) {
+            noDevicesText.visibility = View.VISIBLE
+            deviceListView.visibility = View.GONE
+        } else {
+            noDevicesText.visibility = View.GONE
+            deviceListView.visibility = View.VISIBLE
+            setListViewHeightBasedOnChildren(deviceListView)
+        }
+    }
+
+    private fun setListViewHeightBasedOnChildren(listView: ListView) {
+        val adapter = listView.adapter ?: return
+
+        var totalHeight = 0
+        for (i in 0 until adapter.count) {
+            val listItem = adapter.getView(i, null, listView)
+            listItem.measure(
+                View.MeasureSpec.makeMeasureSpec(listView.width, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            totalHeight += listItem.measuredHeight
+        }
+
+        val params = listView.layoutParams
+        params.height = totalHeight + (listView.dividerHeight * (adapter.count - 1))
+        listView.layoutParams = params
+        listView.requestLayout()
+    }
+
+    private fun showAddDeviceDialog() {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_device, null)
+        val deviceNameEditText = dialogView.findViewById<EditText>(R.id.deviceNameEditText)
+        val entityIdEditText = dialogView.findViewById<EditText>(R.id.entityIdEditText)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.add_device_title)
+            .setView(dialogView)
+            .setPositiveButton(R.string.add) { _, _ ->
+                val name = deviceNameEditText.text.toString().trim()
+                val entityId = entityIdEditText.text.toString().trim()
+
+                if (name.isEmpty()) {
+                    Toast.makeText(this, R.string.device_name_required, Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                if (entityId.isEmpty()) {
+                    Toast.makeText(this, R.string.entity_id_required, Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val devices = settingsManager.deviceList.toMutableList()
+                devices.add(Device(name, entityId))
+                settingsManager.deviceList = devices
+                updateDeviceList()
+                pushDeviceListToHA()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun deleteDevice(position: Int) {
+        val devices = settingsManager.deviceList.toMutableList()
+        if (position < devices.size) {
+            devices.removeAt(position)
+            settingsManager.deviceList = devices
+            updateDeviceList()
+            pushDeviceListToHA()
+        }
+    }
+
+    private fun syncWithHomeAssistant() {
+        if (!settingsManager.isAuthenticated) {
+            Toast.makeText(this, "Please save settings first", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        syncStatusText.text = getString(R.string.syncing)
+        syncDevicesButton.isEnabled = false
+
+        scope.launch {
+            val result = haClient.getDeviceList()
+            if (result.isSuccess) {
+                val devices = result.getOrNull() ?: emptyList()
+                if (devices.isNotEmpty()) {
+                    settingsManager.deviceList = devices
+                    updateDeviceList()
+                    syncStatusText.text = getString(R.string.sync_success, devices.size)
+                } else {
+                    // No devices in HA, push local list to HA
+                    val localDevices = settingsManager.deviceList
+                    if (localDevices.isNotEmpty()) {
+                        val pushResult = haClient.setDeviceList(localDevices)
+                        if (pushResult.isSuccess) {
+                            syncStatusText.text = getString(R.string.sync_pushed)
+                        } else {
+                            syncStatusText.text = getString(R.string.sync_no_entity)
+                        }
+                    } else {
+                        syncStatusText.text = getString(R.string.sync_no_entity)
+                    }
+                }
+            } else {
+                val error = result.exceptionOrNull()?.message ?: "Unknown error"
+                syncStatusText.text = getString(R.string.sync_failed, error)
+            }
+            syncDevicesButton.isEnabled = true
+        }
+    }
+
+    private fun pushDeviceListToHA() {
+        if (!settingsManager.isAuthenticated) return
+
+        scope.launch {
+            val devices = settingsManager.deviceList
+            haClient.setDeviceList(devices)
+        }
+    }
+
+    private inner class DeviceListAdapter : BaseAdapter() {
+        private var devices: List<Device> = emptyList()
+
+        fun updateDevices(newDevices: List<Device>) {
+            devices = newDevices
+            notifyDataSetChanged()
+        }
+
+        override fun getCount(): Int = devices.size
+
+        override fun getItem(position: Int): Device = devices[position]
+
+        override fun getItemId(position: Int): Long = position.toLong()
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+            val view = convertView ?: LayoutInflater.from(this@MainActivity)
+                .inflate(R.layout.item_device, parent, false)
+
+            val device = devices[position]
+            view.findViewById<TextView>(R.id.deviceNameText).text = device.name
+            view.findViewById<TextView>(R.id.deviceEntityIdText).text = device.entityId
+            view.findViewById<ImageButton>(R.id.deleteButton).setOnClickListener {
+                deleteDevice(position)
+            }
+
+            return view
+        }
+    }
+
     companion object {
-        private const val RC_NOTIFICATION_PERMISSION = 101
+        private const val RC_PERMISSIONS = 101
     }
 }
