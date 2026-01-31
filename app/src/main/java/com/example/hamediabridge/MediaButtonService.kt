@@ -377,7 +377,13 @@ class MediaButtonService : MediaBrowserServiceCompat() {
                     service.currentVolume = volume
                     setCurrentVolume(volume)
                     Log.d(TAG, "VolumeProvider currentVolume now: ${getCurrentVolume()}")
+
+                    // Setting volume turns on the device, update play state
+                    service.isPlaying = true
+                    service.updatePlaybackState()
                     service.updateCurrentDeviceMetadata()
+                    service.updateNotification()
+
                     val device = service.getCurrentDevice()
                     if (device != null) {
                         service.fireEvent("device_volume") { haClient.fireDeviceVolumeEvent(device.entityId, volume) }
@@ -395,8 +401,11 @@ class MediaButtonService : MediaBrowserServiceCompat() {
                     setCurrentVolume(newVolume)
                     Log.d(TAG, "VolumeProvider set to: $newVolume, getCurrentVolume: ${getCurrentVolume()}")
 
-                    // Update metadata to show new volume
+                    // Setting volume turns on the device, update play state
+                    service.isPlaying = true
+                    service.updatePlaybackState()
                     service.updateCurrentDeviceMetadata()
+                    service.updateNotification()
 
                     val device = service.getCurrentDevice()
                     if (device != null) {
