@@ -1,0 +1,54 @@
+[
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/mipmap-hdpi_ic_launcher.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/mipmap-hdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/layout_activity_main.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/drawable_ic_next.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/drawable/ic_next.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/drawable_ic_pause.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/drawable/ic_pause.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/drawable_ic_notification.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/drawable/ic_notification.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/mipmap-xhdpi_ic_launcher.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/mipmap-xhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/mipmap-mdpi_ic_launcher.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/mipmap-mdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/mipmap-xxhdpi_ic_launcher.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/mipmap-xxhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/drawable_ic_play.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/drawable/ic_play.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/drawable_ic_previous.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/drawable/ic_previous.xml"
+    },
+    {
+        "merged": "com.example.hamediabridge.app-merged_res-35:/xml_network_security_config.xml.flat",
+        "source": "com.example.hamediabridge.app-main-37:/xml/network_security_config.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/mipmap-xxxhdpi_ic_launcher.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/mipmap-xxxhdpi/ic_launcher.xml"
+    }
+]

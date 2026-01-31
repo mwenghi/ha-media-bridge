@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HA Media Bridge</string>
+    <string name="home_assistant_url">Home Assistant URL</string>
+    <string name="url_hint">https://your-ha-instance.local:8123</string>
+    <string name="authenticate">Authenticate with Home Assistant</string>
+    <string name="start_service">Start Media Service</string>
+    <string name="stop_service">Stop Media Service</string>
+    <string name="status_disconnected">Status: Not Connected</string>
+    <string name="status_connected">Status: Connected</string>
+    <string name="status_service_running">Service: Running</string>
+    <string name="status_service_stopped">Service: Stopped</string>
+    <string name="notification_channel_name">Media Button Service</string>
+    <string name="notification_channel_description">Keeps the media button service running</string>
+    <string name="notification_title">HA Media Bridge</string>
+    <string name="notification_text">Listening for media button events</string>
+    <string name="oauth_error">OAuth authentication failed</string>
+    <string name="oauth_success">Successfully authenticated!</string>
+    <string name="url_required">Please enter Home Assistant URL first</string>
+    <string name="service_toggle">Enable Service</string>
+</resources>
