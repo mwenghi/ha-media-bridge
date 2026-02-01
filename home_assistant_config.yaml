@@ -1,4 +1,14 @@
 # Home Assistant Configuration for HA Media Bridge
+# ================================================
+#
+# RECOMMENDED: Use the HACS integration instead of manual configuration!
+# The HACS integration handles all of this automatically.
+# See README.md for HACS installation instructions.
+#
+# This file is provided for users who prefer manual YAML configuration
+# or cannot use HACS.
+#
+# ================================================
 # Add this to your configuration.yaml or automations.yaml / scripts.yaml
 #
 # ============================================

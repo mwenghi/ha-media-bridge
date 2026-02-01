@@ -1,0 +1,80 @@
+turn_on_device:
+  name: Turn On Device
+  description: Turn on a device by entity ID
+  fields:
+    entity_id:
+      name: Entity ID
+      description: The entity to turn on
+      required: true
+      example: "light.living_room"
+      selector:
+        entity:
+
+turn_off_device:
+  name: Turn Off Device
+  description: Turn off a device by entity ID
+  fields:
+    entity_id:
+      name: Entity ID
+      description: The entity to turn off
+      required: true
+      example: "light.living_room"
+      selector:
+        entity:
+
+set_brightness:
+  name: Set Brightness
+  description: Set brightness/volume/position for a device
+  fields:
+    entity_id:
+      name: Entity ID
+      description: The entity to control
+      required: true
+      example: "light.living_room"
+      selector:
+        entity:
+    brightness_pct:
+      name: Brightness Percentage
+      description: Brightness level (0-100)
+      required: true
+      example: 50
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+
+add_device:
+  name: Add Device
+  description: Add a device to the Android Media Bridge list
+  fields:
+    name:
+      name: Device Name
+      description: Display name for the device
+      required: true
+      example: "Living Room Light"
+      selector:
+        text:
+    entity_id:
+      name: Entity ID
+      description: The entity to control
+      required: true
+      example: "light.living_room"
+      selector:
+        entity:
+
+remove_device:
+  name: Remove Device
+  description: Remove a device from the Android Media Bridge list
+  fields:
+    entity_id:
+      name: Entity ID
+      description: The entity to remove
+      required: true
+      example: "light.living_room"
+      selector:
+        entity:
+
+clear_devices:
+  name: Clear All Devices
+  description: Remove all devices from the Android Media Bridge list

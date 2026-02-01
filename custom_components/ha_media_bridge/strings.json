@@ -1,0 +1,90 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Media Bridge Setup",
+        "description": "Control Home Assistant devices from your Android smartwatch using media buttons.",
+        "data": {
+          "auto_create_input": "Auto-create input_text helper (if missing)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "HA Media Bridge is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HA Media Bridge Options",
+        "data": {
+          "auto_create_input": "Auto-create input_text helper (if missing)"
+        }
+      }
+    }
+  },
+  "services": {
+    "turn_on_device": {
+      "name": "Turn On Device",
+      "description": "Turn on a device by entity ID",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "The entity to turn on"
+        }
+      }
+    },
+    "turn_off_device": {
+      "name": "Turn Off Device",
+      "description": "Turn off a device by entity ID",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "The entity to turn off"
+        }
+      }
+    },
+    "set_brightness": {
+      "name": "Set Brightness",
+      "description": "Set brightness/volume/position for a device",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "The entity to control"
+        },
+        "brightness_pct": {
+          "name": "Brightness Percentage",
+          "description": "Brightness level (0-100)"
+        }
+      }
+    },
+    "add_device": {
+      "name": "Add Device",
+      "description": "Add a device to the Android Media Bridge list",
+      "fields": {
+        "name": {
+          "name": "Device Name",
+          "description": "Display name for the device"
+        },
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "The entity to control"
+        }
+      }
+    },
+    "remove_device": {
+      "name": "Remove Device",
+      "description": "Remove a device from the Android Media Bridge list",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "The entity to remove"
+        }
+      }
+    },
+    "clear_devices": {
+      "name": "Clear All Devices",
+      "description": "Remove all devices from the Android Media Bridge list"
+    }
+  }
+}

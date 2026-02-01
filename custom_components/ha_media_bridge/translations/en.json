@@ -1,0 +1,26 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Media Bridge Setup",
+        "description": "Control Home Assistant devices from your Android smartwatch using media buttons.\n\nThis integration will:\n- Listen for media button events from the Android app\n- Automatically turn devices on/off and adjust brightness\n- Provide sensors to monitor connected devices",
+        "data": {
+          "auto_create_input": "Auto-create input_text helper (if missing)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "HA Media Bridge is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HA Media Bridge Options",
+        "data": {
+          "auto_create_input": "Auto-create input_text helper (if missing)"
+        }
+      }
+    }
+  }
+}
