@@ -3,14 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="@android:color/white">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/device_name"
         android:textSize="14sp"
-        android:textColor="#000000" />
+        android:textColor="#333333" />
 
     <EditText
         android:id="@+id/deviceNameEditText"
@@ -22,7 +23,7 @@
         android:padding="12dp"
         android:textColor="#000000"
         android:textColorHint="#888888"
-        android:background="@android:drawable/edit_text" />
+        android:background="@android:drawable/editbox_background" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,7 +31,7 @@
         android:layout_marginTop="16dp"
         android:text="@string/entity_id"
         android:textSize="14sp"
-        android:textColor="#000000" />
+        android:textColor="#333333" />
 
     <EditText
         android:id="@+id/entityIdEditText"
@@ -42,6 +43,6 @@
         android:padding="12dp"
         android:textColor="#000000"
         android:textColorHint="#888888"
-        android:background="@android:drawable/edit_text" />
+        android:background="@android:drawable/editbox_background" />
 
 </LinearLayout>

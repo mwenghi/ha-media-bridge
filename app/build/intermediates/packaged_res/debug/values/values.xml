@@ -20,11 +20,15 @@
     <string name="device_name_required">Device name is required</string>
     <string name="devices_section_subtitle">Navigate with Next/Prev, toggle with Play/Pause, brightness with Volume</string>
     <string name="devices_section_title">Devices</string>
+    <string name="edit">Edit</string>
+    <string name="edit_device_title">Edit Device</string>
     <string name="entity_id">Entity ID</string>
     <string name="entity_id_hint">e.g., light.living_room</string>
     <string name="entity_id_required">Entity ID is required</string>
     <string name="home_assistant_url">Home Assistant URL</string>
     <string name="later">Later</string>
+    <string name="move_down">Move Down</string>
+    <string name="move_up">Move Up</string>
     <string name="no_devices">No devices configured</string>
     <string name="notification_channel_description">Keeps the media button service running</string>
     <string name="notification_channel_name">Media Button Service</string>
@@ -34,6 +38,7 @@
     <string name="oauth_error">OAuth authentication failed</string>
     <string name="oauth_success">Successfully authenticated!</string>
     <string name="open_settings">Open Settings</string>
+    <string name="save">Save</string>
     <string name="service_toggle">Enable Service</string>
     <string name="start_service">Start Media Service</string>
     <string name="status_connected">Status: Connected</string>

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icon.svg" alt="HA Media Bridge Icon" width="128" height="128">
+  <img src="assets/icon.png" alt="HA Media Bridge Icon" width="128" height="128">
 </p>
 
 <h1 align="center">HA Media Bridge</h1>

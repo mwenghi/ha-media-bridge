@@ -3253,6 +3253,7 @@ id design_menu_item_action_area_stub
 id design_menu_item_text
 id design_navigation_view
 id deviceEntityIdText
+id deviceInfoLayout
 id deviceListView
 id deviceNameEditText
 id deviceNameText
@@ -3279,6 +3280,7 @@ id easeInOut
 id easeOut
 id east
 id edge
+id editButton
 id edit_query
 id edit_text_id
 id elastic
@@ -3389,6 +3391,8 @@ id month_navigation_next
 id month_navigation_previous
 id month_title
 id motion_base
+id moveDownButton
+id moveUpButton
 id mtrl_anchor_parent
 id mtrl_calendar_day_selector_frame
 id mtrl_calendar_days_of_week
@@ -3891,6 +3895,8 @@ string device_name_hint
 string device_name_required
 string devices_section_subtitle
 string devices_section_title
+string edit
+string edit_device_title
 string entity_id
 string entity_id_hint
 string entity_id_required
@@ -3945,6 +3951,8 @@ string material_timepicker_minute
 string material_timepicker_pm
 string material_timepicker_select_time
 string material_timepicker_text_input_mode_description
+string move_down
+string move_up
 string mtrl_badge_numberless_content_description
 string mtrl_checkbox_button_icon_path_checked
 string mtrl_checkbox_button_icon_path_group_name
@@ -4021,6 +4029,7 @@ string path_password_eye
 string path_password_eye_mask_strike_through
 string path_password_eye_mask_visible
 string path_password_strike_through
+string save
 string search_menu_title
 string searchbar_scrolling_view_behavior
 string searchview_clear_text_content_description
