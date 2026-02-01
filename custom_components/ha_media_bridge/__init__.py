@@ -138,9 +138,13 @@ async def _turn_on_device(hass: HomeAssistant, entity_id: str) -> None:
     else:
         svc_domain, svc_name = "homeassistant", SERVICE_TURN_ON
 
-    await hass.services.async_call(
-        svc_domain, svc_name, {ATTR_ENTITY_ID: entity_id}, blocking=True
-    )
+    _LOGGER.debug("Calling %s.%s for %s", svc_domain, svc_name, entity_id)
+    try:
+        await hass.services.async_call(
+            svc_domain, svc_name, {ATTR_ENTITY_ID: entity_id}, blocking=True
+        )
+    except Exception as err:
+        _LOGGER.error("Failed to call %s.%s for %s: %s", svc_domain, svc_name, entity_id, err)
 
 
 async def _turn_off_device(hass: HomeAssistant, entity_id: str) -> None:
@@ -161,51 +165,62 @@ async def _turn_off_device(hass: HomeAssistant, entity_id: str) -> None:
     else:
         svc_domain, svc_name = "homeassistant", SERVICE_TURN_OFF
 
-    await hass.services.async_call(
-        svc_domain, svc_name, {ATTR_ENTITY_ID: entity_id}, blocking=True
-    )
+    _LOGGER.debug("Calling %s.%s for %s", svc_domain, svc_name, entity_id)
+    try:
+        await hass.services.async_call(
+            svc_domain, svc_name, {ATTR_ENTITY_ID: entity_id}, blocking=True
+        )
+    except Exception as err:
+        _LOGGER.error("Failed to call %s.%s for %s: %s", svc_domain, svc_name, entity_id, err)
 
 
 async def _set_brightness(hass: HomeAssistant, entity_id: str, brightness_pct: int) -> None:
     """Set brightness/volume/position for a device based on its domain."""
     domain = entity_id.split(".")[0]
 
-    if domain == "light":
-        await hass.services.async_call(
-            "light",
-            SERVICE_TURN_ON,
-            {ATTR_ENTITY_ID: entity_id, "brightness_pct": brightness_pct},
-            blocking=True,
-        )
-    elif domain == "fan":
-        await hass.services.async_call(
-            "fan",
-            "set_percentage",
-            {ATTR_ENTITY_ID: entity_id, "percentage": brightness_pct},
-            blocking=True,
-        )
-    elif domain == "media_player":
-        await hass.services.async_call(
-            "media_player",
-            "volume_set",
-            {ATTR_ENTITY_ID: entity_id, "volume_level": brightness_pct / 100},
-            blocking=True,
-        )
-    elif domain == "cover":
-        await hass.services.async_call(
-            "cover",
-            "set_cover_position",
-            {ATTR_ENTITY_ID: entity_id, "position": brightness_pct},
-            blocking=True,
-        )
-    else:
-        # Default: try light service
-        await hass.services.async_call(
-            "light",
-            SERVICE_TURN_ON,
-            {ATTR_ENTITY_ID: entity_id, "brightness_pct": brightness_pct},
-            blocking=True,
-        )
+    _LOGGER.debug("Setting brightness/volume for %s (domain: %s) to %s%%", entity_id, domain, brightness_pct)
+
+    try:
+        if domain == "light":
+            await hass.services.async_call(
+                "light",
+                SERVICE_TURN_ON,
+                {ATTR_ENTITY_ID: entity_id, "brightness_pct": brightness_pct},
+                blocking=True,
+            )
+        elif domain == "fan":
+            await hass.services.async_call(
+                "fan",
+                "set_percentage",
+                {ATTR_ENTITY_ID: entity_id, "percentage": brightness_pct},
+                blocking=True,
+            )
+        elif domain == "media_player":
+            volume_level = float(brightness_pct) / 100.0
+            _LOGGER.debug("Calling media_player.volume_set for %s with volume_level=%s", entity_id, volume_level)
+            await hass.services.async_call(
+                "media_player",
+                "volume_set",
+                {ATTR_ENTITY_ID: entity_id, "volume_level": volume_level},
+                blocking=True,
+            )
+        elif domain == "cover":
+            await hass.services.async_call(
+                "cover",
+                "set_cover_position",
+                {ATTR_ENTITY_ID: entity_id, "position": brightness_pct},
+                blocking=True,
+            )
+        else:
+            # Default: try light service
+            await hass.services.async_call(
+                "light",
+                SERVICE_TURN_ON,
+                {ATTR_ENTITY_ID: entity_id, "brightness_pct": brightness_pct},
+                blocking=True,
+            )
+    except Exception as err:
+        _LOGGER.error("Failed to set brightness for %s: %s", entity_id, err)
 
 
 def _register_services(hass: HomeAssistant) -> None:
