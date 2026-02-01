@@ -45,6 +45,8 @@ class MediaButtonService : MediaBrowserServiceCompat() {
     private var currentVolume: Int = 50
     private var isPlaying: Boolean = false
     private var volumeProvider: VolumeProviderCompat? = null
+    private var lastVolumeEventTime: Long = 0
+    private var volumeEventCount: Int = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -58,6 +60,21 @@ class MediaButtonService : MediaBrowserServiceCompat() {
         setupMediaSession()
         // Fetch initial device state from Home Assistant
         fetchAndUpdateDeviceState()
+        // Start periodic session refresh to prevent stale state
+        startPeriodicSessionRefresh()
+    }
+
+    private fun startPeriodicSessionRefresh() {
+        serviceScope.launch {
+            while (true) {
+                delay(60000) // Every 60 seconds
+                Log.d(TAG, "Periodic session refresh")
+                // Only refresh if session might be stale (no recent volume events)
+                if (System.currentTimeMillis() - lastVolumeEventTime > 30000) {
+                    refreshMediaSession()
+                }
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -373,7 +390,9 @@ class MediaButtonService : MediaBrowserServiceCompat() {
                 service.currentVolume
             ) {
                 override fun onSetVolumeTo(volume: Int) {
-                    Log.d(TAG, "VolumeProvider onSetVolumeTo: $volume")
+                    val now = System.currentTimeMillis()
+                    service.volumeEventCount++
+                    Log.d(TAG, "VolumeProvider onSetVolumeTo: $volume, count: ${service.volumeEventCount}")
                     service.currentVolume = volume
                     setCurrentVolume(volume)
                     Log.d(TAG, "VolumeProvider currentVolume now: ${getCurrentVolume()}")
@@ -384,6 +403,13 @@ class MediaButtonService : MediaBrowserServiceCompat() {
                     service.updateCurrentDeviceMetadata()
                     service.updateNotification()
 
+                    // Refresh session periodically to prevent stale state
+                    if (now - service.lastVolumeEventTime > 30000) {
+                        Log.d(TAG, "Refreshing media session after volume gap")
+                        service.refreshMediaSession()
+                    }
+                    service.lastVolumeEventTime = now
+
                     val device = service.getCurrentDevice()
                     if (device != null) {
                         service.fireEvent("device_volume") { haClient.fireDeviceVolumeEvent(device.entityId, volume) }
@@ -391,12 +417,17 @@ class MediaButtonService : MediaBrowserServiceCompat() {
                 }
 
                 override fun onAdjustVolume(direction: Int) {
-                    Log.d(TAG, "VolumeProvider onAdjustVolume: $direction, current: ${service.currentVolume}")
+                    val now = System.currentTimeMillis()
+                    service.volumeEventCount++
+                    Log.d(TAG, "VolumeProvider onAdjustVolume: $direction, current: ${service.currentVolume}, count: ${service.volumeEventCount}")
+
                     val newVolume = when {
                         direction > 0 -> (service.currentVolume + 5).coerceAtMost(100)
                         direction < 0 -> (service.currentVolume - 5).coerceAtLeast(0)
                         else -> service.currentVolume
                     }
+
+                    // Always update even if value is same (to keep session alive)
                     service.currentVolume = newVolume
                     setCurrentVolume(newVolume)
                     Log.d(TAG, "VolumeProvider set to: $newVolume, getCurrentVolume: ${getCurrentVolume()}")
@@ -406,6 +437,13 @@ class MediaButtonService : MediaBrowserServiceCompat() {
                     service.updatePlaybackState()
                     service.updateCurrentDeviceMetadata()
                     service.updateNotification()
+
+                    // Refresh session periodically to prevent stale state
+                    if (now - service.lastVolumeEventTime > 30000) {
+                        Log.d(TAG, "Refreshing media session after volume gap")
+                        service.refreshMediaSession()
+                    }
+                    service.lastVolumeEventTime = now
 
                     val device = service.getCurrentDevice()
                     if (device != null) {
@@ -424,6 +462,34 @@ class MediaButtonService : MediaBrowserServiceCompat() {
 
     fun refreshDeviceList() {
         fetchAndUpdateDeviceState()
+    }
+
+    private fun refreshMediaSession() {
+        Log.d(TAG, "Refreshing media session...")
+        try {
+            // Re-activate the session
+            mediaSession.isActive = false
+            mediaSession.isActive = true
+
+            // Re-apply the volume provider
+            volumeProvider?.let {
+                it.setCurrentVolume(currentVolume)
+                mediaSession.setPlaybackToRemote(it)
+            }
+
+            // Update playback state
+            updatePlaybackState()
+
+            // Re-request audio focus
+            requestAudioFocus()
+
+            // Play brief silent audio to ensure we have media button routing
+            playSilentAudio()
+
+            Log.d(TAG, "Media session refreshed successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to refresh media session", e)
+        }
     }
 
     private fun fetchAndUpdateDeviceState() {
