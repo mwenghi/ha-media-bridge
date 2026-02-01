@@ -3,14 +3,45 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="12dp"
+    android:padding="8dp"
     android:gravity="center_vertical">
 
+    <!-- Reorder buttons -->
     <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginEnd="8dp">
+
+        <ImageButton
+            android:id="@+id/moveUpButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/arrow_up_float"
+            android:contentDescription="@string/move_up"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/moveDownButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/arrow_down_float"
+            android:contentDescription="@string/move_down"
+            android:scaleType="centerInside" />
+
+    </LinearLayout>
+
+    <!-- Device info -->
+    <LinearLayout
+        android:id="@+id/deviceInfoLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="?attr/selectableItemBackground"
+        android:padding="4dp">
 
         <TextView
             android:id="@+id/deviceNameText"
@@ -30,6 +61,16 @@
 
     </LinearLayout>
 
+    <!-- Edit button -->
+    <ImageButton
+        android:id="@+id/editButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_edit"
+        android:contentDescription="@string/edit" />
+
+    <!-- Delete button -->
     <ImageButton
         android:id="@+id/deleteButton"
         android:layout_width="40dp"

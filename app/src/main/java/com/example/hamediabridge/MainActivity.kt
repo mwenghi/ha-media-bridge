@@ -373,14 +373,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showAddDeviceDialog() {
+        showDeviceDialog(null, -1)
+    }
+
+    private fun showEditDeviceDialog(device: Device, position: Int) {
+        showDeviceDialog(device, position)
+    }
+
+    private fun showDeviceDialog(existingDevice: Device?, position: Int) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_device, null)
         val deviceNameEditText = dialogView.findViewById<EditText>(R.id.deviceNameEditText)
         val entityIdEditText = dialogView.findViewById<EditText>(R.id.entityIdEditText)
 
+        val isEdit = existingDevice != null
+        if (isEdit) {
+            deviceNameEditText.setText(existingDevice!!.name)
+            entityIdEditText.setText(existingDevice.entityId)
+        }
+
         AlertDialog.Builder(this)
-            .setTitle(R.string.add_device_title)
+            .setTitle(if (isEdit) R.string.edit_device_title else R.string.add_device_title)
             .setView(dialogView)
-            .setPositiveButton(R.string.add) { _, _ ->
+            .setPositiveButton(if (isEdit) R.string.save else R.string.add) { _, _ ->
                 val name = deviceNameEditText.text.toString().trim()
                 val entityId = entityIdEditText.text.toString().trim()
 
@@ -395,7 +409,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 val devices = settingsManager.deviceList.toMutableList()
-                devices.add(Device(name, entityId))
+                if (isEdit && position >= 0 && position < devices.size) {
+                    devices[position] = Device(name, entityId)
+                } else {
+                    devices.add(Device(name, entityId))
+                }
                 settingsManager.deviceList = devices
                 updateDeviceList()
                 pushDeviceListToHA()
@@ -408,6 +426,30 @@ class MainActivity : AppCompatActivity() {
         val devices = settingsManager.deviceList.toMutableList()
         if (position < devices.size) {
             devices.removeAt(position)
+            settingsManager.deviceList = devices
+            updateDeviceList()
+            pushDeviceListToHA()
+        }
+    }
+
+    private fun moveDeviceUp(position: Int) {
+        if (position <= 0) return
+        val devices = settingsManager.deviceList.toMutableList()
+        if (position < devices.size) {
+            val device = devices.removeAt(position)
+            devices.add(position - 1, device)
+            settingsManager.deviceList = devices
+            updateDeviceList()
+            pushDeviceListToHA()
+        }
+    }
+
+    private fun moveDeviceDown(position: Int) {
+        val devices = settingsManager.deviceList.toMutableList()
+        if (position >= devices.size - 1) return
+        if (position >= 0) {
+            val device = devices.removeAt(position)
+            devices.add(position + 1, device)
             settingsManager.deviceList = devices
             updateDeviceList()
             pushDeviceListToHA()
@@ -483,6 +525,32 @@ class MainActivity : AppCompatActivity() {
             val device = devices[position]
             view.findViewById<TextView>(R.id.deviceNameText).text = device.name
             view.findViewById<TextView>(R.id.deviceEntityIdText).text = device.entityId
+
+            // Move up button
+            val moveUpButton = view.findViewById<ImageButton>(R.id.moveUpButton)
+            moveUpButton.alpha = if (position == 0) 0.3f else 1.0f
+            moveUpButton.isEnabled = position > 0
+            moveUpButton.setOnClickListener {
+                moveDeviceUp(position)
+            }
+
+            // Move down button
+            val moveDownButton = view.findViewById<ImageButton>(R.id.moveDownButton)
+            moveDownButton.alpha = if (position == devices.size - 1) 0.3f else 1.0f
+            moveDownButton.isEnabled = position < devices.size - 1
+            moveDownButton.setOnClickListener {
+                moveDeviceDown(position)
+            }
+
+            // Edit button - tapping on the device info also opens edit
+            view.findViewById<ImageButton>(R.id.editButton).setOnClickListener {
+                showEditDeviceDialog(device, position)
+            }
+            view.findViewById<View>(R.id.deviceInfoLayout).setOnClickListener {
+                showEditDeviceDialog(device, position)
+            }
+
+            // Delete button
             view.findViewById<ImageButton>(R.id.deleteButton).setOnClickListener {
                 deleteDevice(position)
             }
