@@ -609,7 +609,11 @@ For volume events:
 
 ### Volume bar not updating on smartwatch
 
-Some budget smartwatches (like Haylou Solar Plus) don't support the Android VolumeProvider API. The app shows volume in the track subtitle as a workaround (e.g., "Vol: 50%").
+> **Hardware Limitation:** Some budget smartwatches (like Haylou Solar Plus LS16) don't support the Android `VolumeProvider` API for remote volume display. This is a firmware limitation - the watch only displays its own internal volume bar, not the remote volume reported by the media session.
+
+**Workaround:** The app displays the current volume/brightness in the track subtitle (e.g., "Vol: 50%"). This text is visible on most smartwatches even when the volume bar doesn't update.
+
+**Why this happens:** Android's media session can report volume to connected Bluetooth devices via `VolumeProviderCompat`. However, many budget smartwatches ignore this data and only show their local volume control. Premium smartwatches (like Samsung Galaxy Watch, Apple Watch) typically support remote volume display correctly.
 
 ## Device List Storage
 
