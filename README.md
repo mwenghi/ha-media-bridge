@@ -77,13 +77,13 @@
 
 The easiest way to set up the Home Assistant side is using HACS:
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=anthropics&repository=ha-media-bridge&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mwenghi&repository=ha-media-bridge&category=integration)
 
 **Manual HACS Installation:**
 
 1. Open HACS in Home Assistant
 2. Click the three dots menu → **Custom repositories**
-3. Add repository URL: `https://github.com/anthropics/ha-media-bridge`
+3. Add repository URL: `https://github.com/mwenghi/ha-media-bridge`
 4. Category: **Integration**
 5. Click **Add**
 6. Search for "HA Media Bridge" and install

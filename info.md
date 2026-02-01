@@ -48,7 +48,7 @@ input_text:
 
 ## More Information
 
-See the [GitHub repository](https://github.com/anthropics/ha-media-bridge) for:
+See the [GitHub repository](https://github.com/mwenghi/ha-media-bridge) for:
 - Android app download
 - Full documentation
 - Troubleshooting guide
