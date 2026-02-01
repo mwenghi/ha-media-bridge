@@ -86,10 +86,13 @@ The easiest way to set up the Home Assistant side is using HACS:
 3. Add repository URL: `https://github.com/mwenghi/ha-media-bridge`
 4. Category: **Integration**
 5. Click **Add**
-6. Search for "HA Media Bridge" and install
-7. Restart Home Assistant
-8. Go to **Settings → Devices & Services → Add Integration**
-9. Search for "HA Media Bridge" and configure
+6. Search for "HA Media Bridge" and click **Download**
+7. **Restart Home Assistant** (required!)
+8. Go to **Settings → Devices & Services → Add Integration** (+ button)
+9. Search for "HA Media Bridge" and click to add
+10. Configure and submit
+
+**Important:** Step 8-9 is required! HACS only downloads the files - you must add the integration via the UI to activate it.
 
 **What the integration provides:**
 - Automatic event listeners for `android_device_on`, `android_device_off`, `android_device_volume`

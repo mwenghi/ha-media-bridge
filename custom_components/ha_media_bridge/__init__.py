@@ -10,10 +10,8 @@ from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
     SERVICE_TURN_ON,
-    Platform,
 )
 from homeassistant.core import HomeAssistant, ServiceCall, callback
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
@@ -42,20 +40,25 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up HA Media Bridge from a config entry."""
+    _LOGGER.info("Setting up HA Media Bridge integration")
+
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {}
 
     # Set up event listeners
     _setup_event_listeners(hass)
+    _LOGGER.debug("Event listeners registered for android_device_on/off/volume")
 
     # Register services
     _register_services(hass)
+    _LOGGER.debug("Services registered: add_device, remove_device, clear_devices, turn_on/off, set_brightness")
 
-    # Create input_text helper if it doesn't exist
+    # Check input_text helper
     await _ensure_input_text_exists(hass)
 
     # Set up platforms (sensors)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    _LOGGER.info("HA Media Bridge setup complete")
 
     return True
 

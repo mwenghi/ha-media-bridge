@@ -20,8 +20,9 @@ Control your Home Assistant devices from your Android smartwatch using media but
 
 ## Setup
 
-1. Install this integration via HACS
-2. Add the required `input_text` helper to your configuration:
+1. Install this integration via HACS (Download)
+2. **Restart Home Assistant** (required!)
+3. Add the required `input_text` helper to your configuration.yaml:
 
 ```yaml
 input_text:
@@ -30,10 +31,12 @@ input_text:
     max: 255
 ```
 
-3. Restart Home Assistant
-4. Go to Settings → Devices & Services → Add Integration
-5. Search for "HA Media Bridge"
-6. Install the Android app and configure it
+4. Restart Home Assistant again (for the input_text)
+5. Go to **Settings → Devices & Services → Add Integration** (+ button)
+6. Search for "HA Media Bridge" and add it
+7. Install the Android app and configure it
+
+**Note:** HACS only downloads the files. You MUST add the integration via UI (step 5-6) to activate it!
 
 ## Services
 

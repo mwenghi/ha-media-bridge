@@ -1,7 +1,9 @@
 """Constants for HA Media Bridge integration."""
 
+from homeassistant.const import Platform
+
 DOMAIN = "ha_media_bridge"
-PLATFORMS = ["sensor"]
+PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 # Event types from Android app
 EVENT_DEVICE_ON = "android_device_on"
