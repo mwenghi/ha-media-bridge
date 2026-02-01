@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- House shape -->
+    <group
+        android:translateX="54"
+        android:translateY="38">
+        <!-- Roof and body -->
+        <path
+            android:pathData="M-22,4 L0,-14 L22,4 L18,4 L18,24 L-18,24 L-18,4 Z"
+            android:fillColor="#FFFFFF"
+            android:strokeColor="#01579B"
+            android:strokeWidth="1"/>
+        <!-- Door -->
+        <path
+            android:pathData="M-4,10 L4,10 L4,24 L-4,24 Z"
+            android:fillColor="#03A9F4"/>
+        <!-- Window left -->
+        <path
+            android:pathData="M-15,9 L-8,9 L-8,16 L-15,16 Z"
+            android:fillColor="#03A9F4"/>
+        <!-- Window right -->
+        <path
+            android:pathData="M8,9 L15,9 L15,16 L8,16 Z"
+            android:fillColor="#03A9F4"/>
+    </group>
+
+    <!-- Play button circle -->
+    <path
+        android:pathData="M54,78 m-14,0 a14,14 0 1,1 28,0 a14,14 0 1,1 -28,0"
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#01579B"
+        android:strokeWidth="1"/>
+
+    <!-- Play triangle -->
+    <path
+        android:pathData="M50,72 L50,84 L62,78 Z"
+        android:fillColor="#03A9F4"/>
+
+    <!-- Prev button -->
+    <path
+        android:pathData="M30,78 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.9"/>
+    <path
+        android:pathData="M29,75 L25,78 L29,81 M32,75 L28,78 L32,81"
+        android:strokeColor="#03A9F4"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+    <!-- Next button -->
+    <path
+        android:pathData="M78,78 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.9"/>
+    <path
+        android:pathData="M76,75 L80,78 L76,81 M79,75 L83,78 L79,81"
+        android:strokeColor="#03A9F4"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+</vector>

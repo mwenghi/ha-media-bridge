@@ -5,7 +5,20 @@
     android:viewportWidth="24"
     android:viewportHeight="24"
     android:tint="?attr/colorControlNormal">
+
+    <!-- House roof and body -->
     <path
         android:fillColor="@android:color/white"
-        android:pathData="M12,3v10.55c-0.59,-0.34 -1.27,-0.55 -2,-0.55c-2.21,0 -4,1.79 -4,4s1.79,4 4,4s4,-1.79 4,-4V7h4V3H12z"/>
+        android:pathData="M12,3 L2,12 L5,12 L5,20 L19,20 L19,12 L22,12 Z"/>
+
+    <!-- Play button circle (cutout effect using different color won't work, so we'll just add play triangle) -->
+    <path
+        android:fillColor="#03A9F4"
+        android:pathData="M12,17 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"/>
+
+    <!-- Play triangle -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M10.5,15 L10.5,19 L14.5,17 Z"/>
+
 </vector>

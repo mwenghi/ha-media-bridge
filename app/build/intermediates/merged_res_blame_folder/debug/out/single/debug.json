@@ -44,6 +44,14 @@
         "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/layout/item_device.xml"
     },
     {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/drawable_ic_launcher_background.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/drawable/ic_launcher_foreground.xml"
+    },
+    {
         "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/layout_dialog_add_device.xml.flat",
         "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/layout/dialog_add_device.xml"
     },
@@ -56,8 +64,8 @@
         "source": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-main-37:/drawable/ic_previous.xml"
     },
     {
-        "merged": "com.example.hamediabridge.app-merged_res-35:/layout_activity_main.xml.flat",
-        "source": "com.example.hamediabridge.app-main-37:/layout/activity_main.xml"
+        "merged": "com.example.hamediabridge.app-merged_res-35:/drawable_ic_notification.xml.flat",
+        "source": "com.example.hamediabridge.app-main-37:/drawable/ic_notification.xml"
     },
     {
         "merged": "/Users/m.vengrin/.gradle/daemon/8.2/com.example.hamediabridge.app-merged_res-35:/mipmap-xxxhdpi_ic_launcher.xml.flat",

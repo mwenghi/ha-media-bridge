@@ -5,6 +5,8 @@ color black
 color primary
 color primary_dark
 color white
+drawable ic_launcher_background
+drawable ic_launcher_foreground
 drawable ic_next
 drawable ic_notification
 drawable ic_pause

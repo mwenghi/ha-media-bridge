@@ -1,6 +1,12 @@
-# HA Media Bridge
+<p align="center">
+  <img src="assets/icon.svg" alt="HA Media Bridge Icon" width="128" height="128">
+</p>
 
-An Android application that bridges media control buttons (from smartwatches, Bluetooth headphones, car stereos, etc.) to Home Assistant events. Control your smart home devices using familiar media controls - play/pause to toggle devices, next/previous to switch between devices, and volume buttons to adjust brightness.
+<h1 align="center">HA Media Bridge</h1>
+
+<p align="center">
+  An Android application that bridges media control buttons (from smartwatches, Bluetooth headphones, car stereos, etc.) to Home Assistant events. Control your smart home devices using familiar media controls - play/pause to toggle devices, next/previous to switch between devices, and volume buttons to adjust brightness.
+</p>
 
 ---
 
