@@ -213,7 +213,7 @@ script:
               - condition: template
                 value_template: "{{ entity_id.startswith('media_player.') }}"
             sequence:
-              - service: media_player.turn_on
+              - service: media_player.media_play
                 target:
                   entity_id: "{{ entity_id }}"
           # Handle covers
@@ -290,7 +290,7 @@ script:
               - condition: template
                 value_template: "{{ entity_id.startswith('media_player.') }}"
             sequence:
-              - service: media_player.turn_off
+              - service: media_player.media_pause
                 target:
                   entity_id: "{{ entity_id }}"
           # Handle covers

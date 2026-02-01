@@ -566,7 +566,7 @@ For volume events:
 | `light.*` | Turn on | Turn off | Set brightness |
 | `switch.*` | Turn on | Turn off | - |
 | `fan.*` | Turn on | Turn off | Set speed |
-| `media_player.*` | Turn on | Turn off | Set volume |
+| `media_player.*` | Play | Pause | Set volume |
 | `cover.*` | Open | Close | Set position |
 | `scene.*` | Activate | - | - |
 | `script.*` | Run | - | - |

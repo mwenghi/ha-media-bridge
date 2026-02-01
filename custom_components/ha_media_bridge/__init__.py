@@ -122,7 +122,7 @@ async def _turn_on_device(hass: HomeAssistant, entity_id: str) -> None:
         "light": ("light", SERVICE_TURN_ON),
         "switch": ("switch", SERVICE_TURN_ON),
         "fan": ("fan", SERVICE_TURN_ON),
-        "media_player": ("media_player", SERVICE_TURN_ON),
+        "media_player": ("media_player", "media_play"),
         "cover": ("cover", "open_cover"),
         "scene": ("scene", SERVICE_TURN_ON),
         "script": ("script", SERVICE_TURN_ON),
@@ -148,7 +148,7 @@ async def _turn_off_device(hass: HomeAssistant, entity_id: str) -> None:
         "light": ("light", SERVICE_TURN_OFF),
         "switch": ("switch", SERVICE_TURN_OFF),
         "fan": ("fan", SERVICE_TURN_OFF),
-        "media_player": ("media_player", SERVICE_TURN_OFF),
+        "media_player": ("media_player", "media_pause"),
         "cover": ("cover", "close_cover"),
         "input_boolean": ("input_boolean", SERVICE_TURN_OFF),
     }
