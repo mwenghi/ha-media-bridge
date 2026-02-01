@@ -570,9 +570,15 @@ For volume events:
 | `switch.*` | Turn on | Turn off | - |
 | `fan.*` | Turn on | Turn off | Set speed |
 | `media_player.*` | Play | Pause | Set volume |
+| `remote.*` | Play (keycode) | Pause (keycode) | Volume up/down (keycode) |
 | `cover.*` | Open | Close | Set position |
 | `scene.*` | Activate | - | - |
 | `script.*` | Run | - | - |
+
+**Note:** `remote.*` entities (Android TV Remote integration) use keycodes:
+- Play: `KEYCODE_MEDIA_PLAY`
+- Pause: `KEYCODE_MEDIA_PAUSE`
+- Volume: `KEYCODE_VOLUME_UP` / `KEYCODE_VOLUME_DOWN`
 
 ## Troubleshooting
 

@@ -32,6 +32,9 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Track last volume for entities that need relative volume control (remotes)
+_last_volume: dict[str, int] = {}
+
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up HA Media Bridge from YAML (deprecated, use config flow)."""
@@ -108,8 +111,20 @@ def _setup_event_listeners(hass: HomeAssistant) -> None:
             _LOGGER.warning("Received device_volume event without entity_id or volume")
             return
 
-        _LOGGER.info("Setting brightness for %s to %s%%", entity_id, volume)
-        hass.async_create_task(_set_brightness(hass, entity_id, int(volume)))
+        volume = int(volume)
+        domain = entity_id.split(".")[0]
+
+        # For remote entities (Android TV), use relative volume control
+        if domain == "remote":
+            last_vol = _last_volume.get(entity_id, 50)
+            direction = 1 if volume > last_vol else -1 if volume < last_vol else 0
+            _last_volume[entity_id] = volume
+            if direction != 0:
+                _LOGGER.info("Adjusting volume for %s: %s", entity_id, "UP" if direction > 0 else "DOWN")
+                hass.async_create_task(_adjust_volume(hass, entity_id, direction))
+        else:
+            _LOGGER.info("Setting brightness for %s to %s%%", entity_id, volume)
+            hass.async_create_task(_set_brightness(hass, entity_id, volume))
 
     # Register event listeners
     hass.bus.async_listen(EVENT_DEVICE_ON, handle_device_on)
@@ -120,6 +135,20 @@ def _setup_event_listeners(hass: HomeAssistant) -> None:
 async def _turn_on_device(hass: HomeAssistant, entity_id: str) -> None:
     """Turn on a device based on its domain."""
     domain = entity_id.split(".")[0]
+
+    # Special handling for remote (Android TV Remote)
+    if domain == "remote":
+        _LOGGER.debug("Sending KEYCODE_MEDIA_PLAY to %s", entity_id)
+        try:
+            await hass.services.async_call(
+                "remote",
+                "send_command",
+                {ATTR_ENTITY_ID: entity_id, "command": "KEYCODE_MEDIA_PLAY"},
+                blocking=True,
+            )
+        except Exception as err:
+            _LOGGER.error("Failed to send play command to %s: %s", entity_id, err)
+        return
 
     service_map = {
         "light": ("light", SERVICE_TURN_ON),
@@ -150,6 +179,20 @@ async def _turn_on_device(hass: HomeAssistant, entity_id: str) -> None:
 async def _turn_off_device(hass: HomeAssistant, entity_id: str) -> None:
     """Turn off a device based on its domain."""
     domain = entity_id.split(".")[0]
+
+    # Special handling for remote (Android TV Remote)
+    if domain == "remote":
+        _LOGGER.debug("Sending KEYCODE_MEDIA_PAUSE to %s", entity_id)
+        try:
+            await hass.services.async_call(
+                "remote",
+                "send_command",
+                {ATTR_ENTITY_ID: entity_id, "command": "KEYCODE_MEDIA_PAUSE"},
+                blocking=True,
+            )
+        except Exception as err:
+            _LOGGER.error("Failed to send pause command to %s: %s", entity_id, err)
+        return
 
     service_map = {
         "light": ("light", SERVICE_TURN_OFF),
@@ -221,6 +264,25 @@ async def _set_brightness(hass: HomeAssistant, entity_id: str, brightness_pct: i
             )
     except Exception as err:
         _LOGGER.error("Failed to set brightness for %s: %s", entity_id, err)
+
+
+async def _adjust_volume(hass: HomeAssistant, entity_id: str, direction: int) -> None:
+    """Adjust volume up or down for a device (used for remote entities)."""
+    domain = entity_id.split(".")[0]
+
+    if domain == "remote":
+        # Android TV Remote - send volume keycode
+        command = "KEYCODE_VOLUME_UP" if direction > 0 else "KEYCODE_VOLUME_DOWN"
+        _LOGGER.debug("Sending %s to %s", command, entity_id)
+        try:
+            await hass.services.async_call(
+                "remote",
+                "send_command",
+                {ATTR_ENTITY_ID: entity_id, "command": command},
+                blocking=True,
+            )
+        except Exception as err:
+            _LOGGER.error("Failed to send volume command to %s: %s", entity_id, err)
 
 
 def _register_services(hass: HomeAssistant) -> None:
