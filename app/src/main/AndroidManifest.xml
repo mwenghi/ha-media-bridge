@@ -8,6 +8,11 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Bluetooth permissions for detecting audio device connections (Spotify-like behavior) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Alarm permission for service restart mechanism -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -54,6 +59,29 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!-- Bluetooth connection receiver - wakes up service when audio devices connect -->
+        <receiver
+            android:name=".BluetoothConnectionReceiver"
+            android:exported="true">
+            <intent-filter>
+                <!-- A2DP (Bluetooth audio streaming) connection -->
+                <action android:name="android.bluetooth.a2dp.profile.action.CONNECTION_STATE_CHANGED" />
+                <!-- Bluetooth headset connection -->
+                <action android:name="android.bluetooth.headset.profile.action.CONNECTION_STATE_CHANGED" />
+                <!-- Generic Bluetooth device connection -->
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                <!-- Audio becoming noisy (headphones unplugged) -->
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+                <!-- SCO audio state (after calls) -->
+                <action android:name="android.media.ACTION_SCO_AUDIO_STATE_UPDATED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Alarm-based restart receiver for persistence -->
+        <receiver
+            android:name=".RestartReceiver"
+            android:exported="false" />
 
     </application>
 

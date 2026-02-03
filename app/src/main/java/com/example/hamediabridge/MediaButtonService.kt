@@ -1,5 +1,6 @@
 package com.example.hamediabridge
 
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,12 +8,14 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
 import android.os.Bundle
+import android.os.SystemClock
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -21,6 +24,7 @@ import androidx.media.VolumeProviderCompat
 import android.util.Log
 import android.view.KeyEvent
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
@@ -62,6 +66,10 @@ class MediaButtonService : MediaBrowserServiceCompat() {
         fetchAndUpdateDeviceState()
         // Start periodic session refresh to prevent stale state
         startPeriodicSessionRefresh()
+        // Schedule WorkManager for background persistence (Spotify-like)
+        MediaSessionRefreshWorker.schedule(this)
+        // Schedule alarm-based restart as backup
+        scheduleRestartAlarm()
     }
 
     private fun startPeriodicSessionRefresh() {
@@ -175,7 +183,17 @@ class MediaButtonService : MediaBrowserServiceCompat() {
         abandonAudioFocus()
         mediaSession.isActive = false
         mediaSession.release()
+        cancelRestartAlarm()
         super.onDestroy()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Log.d(TAG, "Service onTaskRemoved - scheduling restart")
+        // When user swipes app from recents, schedule restart
+        if (settingsManager.serviceEnabled && settingsManager.isAuthenticated) {
+            scheduleRestartAlarm()
+        }
+        super.onTaskRemoved(rootIntent)
     }
 
     private fun createNotificationChannel() {
@@ -569,6 +587,40 @@ class MediaButtonService : MediaBrowserServiceCompat() {
         audioManager.unregisterMediaButtonEventReceiver(mediaButtonReceiverComponent)
     }
 
+    private fun scheduleRestartAlarm() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val restartIntent = Intent(this, RestartReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            RESTART_ALARM_REQUEST_CODE,
+            restartIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        // Schedule alarm to restart service in 1 minute if it dies
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + 60000,
+            pendingIntent
+        )
+        Log.d(TAG, "Restart alarm scheduled")
+    }
+
+    private fun cancelRestartAlarm() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val restartIntent = Intent(this, RestartReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            RESTART_ALARM_REQUEST_CODE,
+            restartIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE
+        )
+        pendingIntent?.let {
+            alarmManager.cancel(it)
+            Log.d(TAG, "Restart alarm cancelled")
+        }
+    }
+
     private fun playSilentAudio() {
         serviceScope.launch(Dispatchers.IO) {
             try {
@@ -699,6 +751,7 @@ class MediaButtonService : MediaBrowserServiceCompat() {
         private const val CHANNEL_ID = "media_button_service"
         private const val NOTIFICATION_ID = 1
         private const val MEDIA_ROOT_ID = "ha_media_bridge_root"
+        private const val RESTART_ALARM_REQUEST_CODE = 12345
 
         const val ACTION_PLAY = "com.example.hamediabridge.PLAY"
         const val ACTION_PAUSE = "com.example.hamediabridge.PAUSE"
